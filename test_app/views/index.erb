@@ -3,9 +3,11 @@
         <meta charset="UTF-8">
     </head>
     <body>
-        <form action="count" method="GET">
-            <input type="text" name="num" value="">
-            <input type="submit" value="送信する">
+        <form action="count" method="POST">
+            <textarea cols="40" rows="4"name="text" value=""></textarea>
+            <br />
+            <input type="submit" name="count" value="文字数をカウントする">
+            <input type="submit" name="most" value="もっとも多い文字を返す">
         </form>
     </body>
 </html>
