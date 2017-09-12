@@ -7,7 +7,14 @@ end
 
 post '/count' do
   if params[:most].nil? then
-    @return_value = params[:text].length
+    if params[:word].nil? then
+      @return_value = params[:text].length
+    else
+      @str = params[:text]
+      @str_ary = @str.split(" ")
+      @return_value = @str_ary.group_by { |e| e }.sort_by { |e, v| -v.size }.map(&:first).first
+      
+    end
   else
     @input_value = params[:text]
     @most_many_char_count = 0
@@ -23,4 +30,8 @@ post '/count' do
   end
 
   erb :count
+end
+
+post '/word' do
+  
 end
