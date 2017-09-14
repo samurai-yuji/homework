@@ -11,23 +11,19 @@ post '/count' do
       @return_value = params[:text].length
     else
       @hash = {}
-      @max = 0
+      @return_value = {}
       @str = params[:text]
       @str_ary = @str.split(" ")
       #@return_value = @str_ary.group_by { |e| e }.sort_by { |e, v| -v.size }.map(&:first).first
       
-      @str_ary.each do |value|
-        @key = @str_ary.count(value)
-        
-        if @max < @key then
-          @max = @key
-          @hash.store(@key,value)
-        end
+      #eachループでhashを完成させて下さい。ループの後でhashをsortして答えを取得してください。また、アットマークの意味を考えて実装して下さい。
+      
+      @str_ary.each do |key|
+        value = @str_ary.count(key)
+        @hash.store(key,value)
       end
-      
-      @hash = @hash.max
-      @return_value = @hash[1]
-      
+        @hash= @hash.max{ |x, y| x[1] <=> y[1] } 
+        @return_value = @hash[0]
     end
   else
     @input_value = params[:text]
