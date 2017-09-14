@@ -10,9 +10,23 @@ post '/count' do
     if params[:word].nil? then
       @return_value = params[:text].length
     else
+      @hash = {}
+      @max = 0
       @str = params[:text]
       @str_ary = @str.split(" ")
-      @return_value = @str_ary.group_by { |e| e }.sort_by { |e, v| -v.size }.map(&:first).first
+      #@return_value = @str_ary.group_by { |e| e }.sort_by { |e, v| -v.size }.map(&:first).first
+      
+      @str_ary.each do |value|
+        @key = @str_ary.count(value)
+        
+        if @max < @key then
+          @max = @key
+          @hash.store(@key,value)
+        end
+      end
+      
+      @hash = @hash.max
+      @return_value = @hash[1]
       
     end
   else
