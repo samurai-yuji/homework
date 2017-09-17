@@ -10,20 +10,29 @@ post '/count' do
     if params[:word].nil? then
       @return_value = params[:text].length
     else
+      
+      #count()は使わず、一つずつ単語をカウントしながらhashを完成させるように修正してください。
+      #max()は使わず、sort()を使ってください。
+      #単語の頻度数のベスト３を返してください、という要件が追加になっても対応できるようにしてください
+      
       @hash = {}
-      @return_value = {}
+      @hash_sort = {}
+      @return_value = ""
       @str = params[:text]
       @str_ary = @str.split(" ")
-      #@return_value = @str_ary.group_by { |e| e }.sort_by { |e, v| -v.size }.map(&:first).first
-      
-      #eachループでhashを完成させて下さい。ループの後でhashをsortして答えを取得してください。また、アットマークの意味を考えて実装して下さい。
-      
       @str_ary.each do |key|
-        value = @str_ary.count(key)
-        @hash.store(key,value)
+        unless @hash.has_value?("#{key}") then
+          @hash["#{key}"] = @hash["#{key}"].to_i + 1
+          @hash_sort = @hash.sort {|(k1, v1), (k2, v2)| v2 <=> v1 }
+        end
       end
-        @hash= @hash.max{ |x, y| x[1] <=> y[1] } 
-        @return_value = @hash[0]
+      count = 1
+      @hash_sort.first(3).each do |value, key|
+        @return_value = @return_value + count.to_s + "位：" + value + "<br />"
+        count.to_i
+        count = count + 1
+      end
+        
     end
   else
     @input_value = params[:text]
