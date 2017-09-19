@@ -1,0 +1,34 @@
+<body>
+  <!--データ入力フォーム-->
+  <input type="text" id="foo">
+  <input id="submit" type="button" value="文字数をカウントする">
+  <p id="result"></p>
+
+  <!--jQuery召喚-->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> 
+
+  <!--submitボタンをおすと以下のAjax通信-->
+  <script type="text/javascript">
+    $(function(){
+      $("#submit").click(function(){
+        var foo = $("#foo").val();
+        $.ajax({
+          type: "POST",
+          url: "/post",
+          dataType: "text", //dataTypeをちゃんと指定する
+          data: {
+            foo: foo
+          },
+        //以下、コールバック関数で戻り値を受け取り、id="result"に表示
+        success: function(json) {
+        dataType: "json",  //dataTypeをちゃんと指定する
+        $('#result').append(json);
+        },
+        error: function() {
+        $('#result').append('error');
+        }
+        });
+      });
+    });
+  </script>
+</body>
