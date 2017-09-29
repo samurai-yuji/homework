@@ -1,7 +1,12 @@
 <body>
   <!--データ入力フォーム-->
-  <input type="text" id="foo">
-  <input id="submit" type="button" value="文字数をカウントする">
+  <textarea id="foo" cols="40" rows="4"name="text" value=""></textarea>
+  <br />
+  <input type="button" class="submit" id="post" value="文字数をカウントする">
+  <br />
+  <input type="button" class="submit" id="most" value="もっとも多い文字を返す">
+  <br />
+  <input type="button" class="submit" id="text" value="もっとも多い単語を返す">
   <p id="result"></p>
 
   <!--jQuery召喚-->
@@ -10,11 +15,12 @@
   <!--submitボタンをおすと以下のAjax通信-->
   <script type="text/javascript">
     $(function(){
-      $("#submit").click(function(){
+      $(".submit").click(function(){
+      	var setuzokusaki = "/" + this.id
         var foo = $("#foo").val();
         $.ajax({
           type: "POST",
-          url: "/post",
+          url: setuzokusaki,
           dataType: "text", //dataTypeをちゃんと指定する
           data: {
             foo: foo
@@ -22,6 +28,7 @@
         //以下、コールバック関数で戻り値を受け取り、id="result"に表示
         success: function(json) {
         dataType: "json",  //dataTypeをちゃんと指定する
+         $('#result').empty();
         $('#result').append(json);
         },
         error: function() {
@@ -29,6 +36,7 @@
         }
         });
       });
+
     });
   </script>
 </body>

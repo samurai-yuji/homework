@@ -1,15 +1,95 @@
-<html>
-    <head>
-        <meta charset="UTF-8">
-    </head>
-    <body>
-        <form action="count" method="POST">
-            <textarea cols="40" rows="4"name="text" value=""></textarea>
-            <br />
-            <input type="submit" name="count" value="文字数をカウントする">
-            <input type="submit" name="most" value="もっとも多い文字を返す">
-            <br />
-            <input type="submit" name="word" value="もっとも多い単語を返す">
-        </form>
-    </body>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+	<title>jQuery Visualize サンプル1</title>
+	<link href="./css/basic.css" type="text/css" rel="stylesheet" />
+	<link href="./css/visualize.css" type="text/css" rel="stylesheet" />
+	<link href="./css/visualize-dark.css" type="text/css" rel="stylesheet" />
+	<script type="text/javascript" src="http://filamentgroup.github.com/EnhanceJS/enhance.js"></script>	
+	<script type="text/javascript" src="./js/excanvas.js"></script>	
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>	
+	<script type="text/javascript" src="./js/visualize.jQuery.js"></script>	
+
+<script type="text/javascript">
+		// Run capabilities test
+		enhance({
+			loadScripts: [
+				{src: './js/excanvas.js', iecondition: 'all'},
+				'./js/jquery.js',
+				'./js/visualize.jQuery.js',
+				'./js/example.js'
+			],
+			loadStyles: [
+				'./css/visualize.css',
+				'./css/visualize-dark.css'
+			]
+		});
+    </script>
+
+  <script type="text/javascript">
+$(function(){
+  $(".submit").click(function(){
+    var setuzokusaki = "/" + this.id
+    var foo = $("#foo").val();
+    $.ajax({
+      type: "POST",
+      url: setuzokusaki,
+      dataType: "text", //dataTypeをちゃんと指定する
+      data: {
+        foo: foo
+      },
+      //以下、コールバック関数で戻り値を受け取り、id="result"に表示
+      success: function(json) {
+        dataType: "json",  //dataTypeをちゃんと指定する
+        $('#listbox').empty();
+        //[["batu",7],["ba",6],["ma",5],["maru",4]]
+        //batu,7ba,6ma,5maru,4
+        var res = JSON.parse(json);
+        var wak = "<caption>単語数ランキング</caption><thead><tr><td></td>";
+
+        for (i = 0; i < res.length; i++) {
+          wak += "<th>";
+          wak += res[i][0];
+          wak += "</th>\n";
+        }
+  
+        wak += "</tr></thead><tbody><tr><th>数</th>\n";
+  
+        for (i = 0; i < res.length; i++) {
+          wak += "<td>";
+          wak += res[i][1];
+          wak += "</td>\n";
+        }
+  
+        wak += "</tr></tbody>\n";
+        $("#listbox").append(wak);
+        $('table').visualize();
+
+      },
+      error: function() {
+        $('#result').append('error');
+      }
+    });
+  });
+});
+  </script>
+</head>
+<body>
+  <!--データ入力フォーム-->
+  <textarea id="foo" cols="40" rows="4"name="text" value=""></textarea>
+  <br />
+  <input type="button" class="submit" id="post" value="文字数をカウントする">
+  <br />
+  <input type="button" class="submit" id="most" value="もっとも多い文字を返す">
+  <br />
+  <input type="button" class="submit" id="text" value="もっとも多い単語を返す">
+  <p id="result"></p>
+
+  <table id="listbox" border=1>
+  
+  </table>
+
+
+</body>
 </html>
