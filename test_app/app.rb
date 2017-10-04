@@ -8,9 +8,7 @@ end
 
 post '/post' do
   #ここで入力データを処理する
-  foo = params[:foo].length
-  content_type :json
-  @data = foo.to_json  
+  @data = params[:foo].length
 
 end
 
@@ -36,8 +34,6 @@ end
 post '/text' do
 
   hash = {}
-  hash_sort = {}
-  @return_value = ""
   str = params[:foo]
   str_ary = str.split(" ")
   str_ary.each do |key|
@@ -49,10 +45,8 @@ post '/text' do
   end
   hash_sort = hash.sort {|(k1, v1), (k2, v2)| v2 <=> v1 }
   
-  hash_sort.each.with_index(1) do |(key,val),i|
-    @return_value = @return_value + i.to_s + "位：" + key + "<br />"
-  end
-  return hash_sort.to_json
+  return hash_sort.to_s
+  
 end
 
 
