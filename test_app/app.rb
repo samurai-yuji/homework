@@ -7,9 +7,7 @@ get '/' do
 end
 
 post '/post' do
-  #ここで入力データを処理する
-  @data = params[:foo].length
-
+  data = params[:foo].length.to_s
 end
 
 post '/most' do
@@ -44,9 +42,26 @@ post '/text' do
     end
   end
   hash_sort = hash.sort {|(k1, v1), (k2, v2)| v2 <=> v1 }
+
   
-  return hash_sort.to_s
-  
+  wak = "<caption>単語数ランキング</caption><thead><tr><td></td>"
+
+
+  def add_elements(wak, tag, close_tag, hash_sort, num)
+    hash_sort.each do |value|
+      wak += tag
+      wak += value[num].to_s
+      wak += close_tag
+    end
+    return wak
+  end
+
+  wak = add_elements(wak, "<th>", "</th>", hash_sort, 0)
+  wak += "</tr></thead><tbody><tr><th>単語数</th>\n"
+  wak = add_elements(wak, "<td>", "</td>", hash_sort, 1)
+  wak += "</tr></tbody>\n";
+
+  return wak
 end
 
 

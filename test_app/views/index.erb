@@ -24,32 +24,18 @@ $(function(){
       data: {
         foo: foo
       },
-      //以下、コールバック関数で戻り値を受け取り、id="result"に表示
-      success: function(json) {
-        dataType: "html",  //dataTypeをちゃんと指定する
+      //以下、コールバック関数で戻り値を受け取る
+      success: function(html) {
+        $('#result').empty();
         $('#listbox').empty();
-        //[["batu",7],["ba",6],["ma",5],["maru",4]]
-        //batu,7ba,6ma,5maru,4
-        var res = JSON.parse(json);
-        var wak = "<caption>単語数ランキング</caption><thead><tr><td></td>";
+        $('.visualize').remove();
 
-        for (i = 0; i < res.length; i++) {
-          wak += "<th>";
-          wak += res[i][0];
-          wak += "</th>\n";
+        if(setuzokusaki == "/text"){
+          $("#listbox").append(html);
+          $('table').visualize();
+        }else{
+          $('#result').append(html);
         }
-  
-        wak += "</tr></thead><tbody><tr><th>単語数</th>\n";
-  
-        for (i = 0; i < res.length; i++) {
-          wak += "<td>";
-          wak += res[i][1];
-          wak += "</td>\n";
-        }
-  
-        wak += "</tr></tbody>\n";
-        $("#listbox").append(wak);
-        $('table').visualize();
 
       },
       error: function() {
