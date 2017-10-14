@@ -6,6 +6,13 @@ get '/' do
   erb :index  
 end
 
+post '/add_to_textfile' do
+  File.open("sample1.txt", "a") do |f| 
+    f.puts(params[:foo])
+  end
+end
+
+
 post '/post' do
   data = params[:foo].length.to_s
 end
