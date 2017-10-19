@@ -15,6 +15,7 @@
   <script type="text/javascript">
 $(function(){
   $(".submit").click(function(){
+    
     var setuzokusaki = "/" + this.id
     var foo = $("#foo").val();
     $.ajax({
@@ -30,9 +31,14 @@ $(function(){
         $('#listbox').empty();
         $('.visualize').remove();
 
-        if(setuzokusaki == "/text"){
+        if(setuzokusaki == "/bar_graph"){
           $("#listbox").append(html);
           $('table').visualize();
+          
+        }else if(setuzokusaki == "/pie_chart"){
+          $("#listbox").append(html);
+          $('table').visualize({type: 'pie', width: "1500px",
+		height: "1200px"});
         }else{
           $('#result').append(html);
         }
@@ -54,9 +60,12 @@ $(function(){
   <br />
   <input type="button" class="submit" id="most" value="もっとも多い文字を返す">
   <br />
-  <input type="button" class="submit" id="text" value="もっとも多い単語を返す">
+  <input type="button" class="submit" id="bar_graph" value="もっとも多い単語を返す（棒グラフ）">
   <br />
-  <input type="button" class="submit" id="add_to_textfile" value="テキストファイルに追加する">
+  <input type="button" class="submit" id="pie_chart" value="もっとも多い単語を返す（円グラフ）">
+  <br />
+  <input type="button" class="submit" id="add_to_database" value="データベースに追加する">
+  <br />
   <p id="result"></p>
 
   <table id="listbox" border=1>

@@ -5,3 +5,17 @@ oiuy
 Lorem ipsum dolor sit amet,
 ad pro aliquando reprimique,
 et sit eripuit corrumpit.
+
+bundle exec ruby app.rb -p $PORT -o $IP
+
+
+
+aiueo
+aiueo
+aaaa
+ssss
+aaaaaaaaaa
+asdf
+asdf
+aaaa
+アイウエオ

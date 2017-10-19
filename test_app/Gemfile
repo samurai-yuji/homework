@@ -11,3 +11,5 @@ group :development do
   gem 'racksh'
   gem 'pry-byebug'
 end
+
+gem 'sqlite3'

@@ -1,17 +1,49 @@
 require 'sinatra'
 require 'sinatra/reloader'
 require 'pry'
+require 'sqlite3'
+
+
+
+def hash_sort_def(str)
+  hash = {}
+  str_ary = str.split(" ")
+  str_ary.each do |key|
+    if hash.has_key?(key) then
+        hash[key] += 1
+    else
+        hash[key] = 1
+    end
+  end
+  return hash_sort = hash.sort {|(k1, v1), (k2, v2)| v2 <=> v1 }
+end
+
 
 get '/' do
   erb :index  
 end
 
-post '/add_to_textfile' do
-  File.open("sample1.txt", "a") do |f| 
-    f.puts(params[:foo])
-  end
-end
+post '/add_to_database' do
 
+  ua = request.env['HTTP_USER_AGENT']
+  if ua.include? "MSIE"
+    browser = "ie"
+  elsif ua.include? "Firefox"
+    browser = "firefox"
+  elsif ua.include? "Chrome"
+    browser = "chrome"
+  elsif ua.include? "Opera"
+    browser = "opera"
+  elsif ua.include? "safari"
+    browser = "safari"
+  else
+    browser = "others"
+  end
+  db = SQLite3::Database.new('test.db')
+  db.execute("insert into test (browser,text) values ('#{browser}','#{params[:foo]}')")
+  
+  return browser
+end
 
 post '/post' do
   data = params[:foo].length.to_s
@@ -36,20 +68,9 @@ input_value = params[:foo]
     return @data
 end
 
-post '/text' do
+post '/bar_graph' do
 
-  hash = {}
-  str = params[:foo]
-  str_ary = str.split(" ")
-  str_ary.each do |key|
-    if hash.has_key?(key) then
-        hash[key] += 1
-    else
-        hash[key] = 1
-    end
-  end
-  hash_sort = hash.sort {|(k1, v1), (k2, v2)| v2 <=> v1 }
-
+  hash_sort = hash_sort_def(params[:foo])
   
   wak = "<caption>単語数ランキング</caption><thead><tr><td></td>"
 
@@ -70,6 +91,29 @@ post '/text' do
 
   return wak
 end
+
+
+post '/pie_chart' do
+  hash_sort = hash_sort_def(params[:foo])
+  
+  wak = "<caption>単語数ランキング</caption><thead><tr><td></td><th>単語数</th></tr></thead><tbody>"
+  
+  hash_sort.each do |value|
+    wak += "<tr><th>"
+    wak += value[0].to_s
+    wak += "</th>"
+    wak += "<td>"
+    wak += value[1].to_s
+    wak += "</td></tr>"
+  end 
+  
+  wak += "</tbody>"
+  
+  return wak
+  
+end
+
+
 
 
 get '/mohan' do
