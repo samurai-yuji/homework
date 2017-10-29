@@ -74,8 +74,7 @@ post '/browser_graph' do
   wak = "<caption>単語数ランキング</caption><thead><tr><td></td>"
 
   #hash = {"ie" => 0,"firefox" => 0,"chrome" => 0,"opera" => 0,"safari" => 0,others: 0 }
-  chrome_str_ary = []
-  others_str_ary = []
+
   str_ary = []
   
   chrome_str_hash = {}
@@ -86,32 +85,41 @@ post '/browser_graph' do
   db.results_as_hash = true
   db.execute('select * from test') do |row|
     str_ary = row["text"].split(" ")
-    str_ary.each do |key|
-      unless str_all.include?(key) then
-          str_all.push(key)
-        end
+    str_ary.each do |str|
+      unless str_all.include?(str) then
+          str_all.push(str)
       end
-  end
-  
-  db.execute('select * from test') do |row|
-    chrome_str_ary = row["text"].split(" ")
-    if row["browser"] == "chrome" then
-      str_all.each do |key|
-        if chrome_str_hash.has_key?(key) then
-          chrome_str_hash[key] += 1
-       else
-          chrome_str_hash[key] = 0
-        end
+      
+      if row["browser"] == "chrome" then
+        if chrome_str_hash.has_key?(str) then
+          chrome_str_hash[str] += 1
+        else
+          chrome_str_hash[str] = 1
+        end        
+      else
+        if others_str_hash.has_key?(str) then
+          others_str_hash[str] += 1
+        else
+          others_str_hash[str] = 1
+        end        
       end
-    else
-     
+    end
+      
+    str_all.each do |str|
+      unless chrome_str_hash.has_key?(str) then
+        chrome_str_hash[str] = 0
+      end  
+
+      unless others_str_hash.has_key?(str) then
+        others_str_hash[str] = 0
+      end 
     end
   end
   db.close
   
-  chrome_chars_sort = chrome_str_hash.sort {|(k1, v1), (k2, v2)| v2 <=> v1 }
-  #str_chars_sort = str_hash.sort {|(k1, v1), (k2, v2)| v2 <=> v1 }
- 
+  chrome_chars_sort = chrome_str_hash.sort
+  others_chars_sort = others_str_hash.sort
+  
   def add_elements(wak, tag, close_tag, hash_sort, num)
     hash_sort.each do |value|
 
@@ -123,8 +131,13 @@ post '/browser_graph' do
   end
 
   wak = add_elements(wak, "<th>", "</th>", chrome_chars_sort, 0)
-  wak += "</tr></thead><tbody><tr><th>単語数</th>\n"
+  
+  wak += "</tr></thead><tbody><tr><th>chrome</th>\n"
   wak = add_elements(wak, "<td>", "</td>", chrome_chars_sort, 1)
+  
+  wak += "</tr></thead><tbody><tr><th>others</th>\n"
+  wak = add_elements(wak, "<td>", "</td>", others_chars_sort, 1)
+  
   wak += "</tr></tbody>\n";
   return wak
   #trの中を繰り返す
