@@ -31,7 +31,7 @@ $(function(){
         $('#listbox').empty();
         $('.visualize').remove();
 
-        if(setuzokusaki == "/bar_graph"){
+        if(setuzokusaki == "/bar_graph" || setuzokusaki == "/browser_graph"){
           $("#listbox").append(html);
           $('table').visualize();
           
@@ -64,6 +64,8 @@ $(function(){
   <br />
   <input type="button" class="submit" id="pie_chart" value="もっとも多い単語を返す（円グラフ）">
   <br />
+  <input type="button" class="submit" id="browser_graph" value="もっとも多い単語を返す（ブラウザ別）">
+  <br />  
   <input type="button" class="submit" id="add_to_database" value="データベースに追加する">
   <br />
   <p id="result"></p>
