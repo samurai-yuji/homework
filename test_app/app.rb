@@ -73,12 +73,8 @@ post '/browser_graph' do
 
   wak = "<caption>単語数ランキング</caption><thead><tr><td></td>"
 
-  #hash = {"ie" => 0,"firefox" => 0,"chrome" => 0,"opera" => 0,"safari" => 0,others: 0 }
-
+  browser_hash = Hash.new { |h,k| h[k] = {} }
   str_ary = []
-  
-  chrome_str_hash = {}
-  others_str_hash = {}
   str_all = []
   
   db = SQLite3::Database.new('test.db')
@@ -87,39 +83,30 @@ post '/browser_graph' do
     str_ary = row["text"].split(" ")
     str_ary.each do |str|
       unless str_all.include?(str) then
-          str_all.push(str)
+        str_all.push(str)
       end
-      
-      if row["browser"] == "chrome" then
-        if chrome_str_hash.has_key?(str) then
-          chrome_str_hash[str] += 1
-        else
-          chrome_str_hash[str] = 1
-        end        
+      if browser_hash[row["browser"]].has_key?(str) then
+        browser_hash[row["browser"]][str] += 1
       else
-        if others_str_hash.has_key?(str) then
-          others_str_hash[str] += 1
-        else
-          others_str_hash[str] = 1
-        end        
-      end
-    end
-      
-    str_all.each do |str|
-      unless chrome_str_hash.has_key?(str) then
-        chrome_str_hash[str] = 0
-      end  
-
-      unless others_str_hash.has_key?(str) then
-        others_str_hash[str] = 0
+        browser_hash[row["browser"]][str] = 1
       end 
     end
   end
+
+  db.execute('select * from test') do |row|
+    str_all.each do |str|
+      unless browser_hash[row["browser"]].has_key?(str) then
+        browser_hash[row["browser"]][str] = 0
+      end  
+    end    
+  end
+  
   db.close
-  
-  chrome_chars_sort = chrome_str_hash.sort
-  others_chars_sort = others_str_hash.sort
-  
+
+  browser_hash.each do |key, value|
+    browser_hash[key] = browser_hash[key].sort
+  end
+
   def add_elements(wak, tag, close_tag, hash_sort, num)
     hash_sort.each do |value|
 
@@ -130,13 +117,12 @@ post '/browser_graph' do
     return wak
   end
 
-  wak = add_elements(wak, "<th>", "</th>", chrome_chars_sort, 0)
-  
-  wak += "</tr></thead><tbody><tr><th>chrome</th>\n"
-  wak = add_elements(wak, "<td>", "</td>", chrome_chars_sort, 1)
-  
-  wak += "</tr></thead><tbody><tr><th>others</th>\n"
-  wak = add_elements(wak, "<td>", "</td>", others_chars_sort, 1)
+  wak = add_elements(wak, "<th>", "</th>", browser_hash["chrome"], 0)
+
+  browser_hash.each do |key, value|
+    wak += "</tr></thead><tbody><tr><th>#{key}</th>\n"
+    wak = add_elements(wak, "<td>", "</td>", browser_hash[key], 1)
+  end
   
   wak += "</tr></tbody>\n";
   return wak
