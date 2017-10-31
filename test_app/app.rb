@@ -100,7 +100,6 @@ post '/browser_graph' do
       end  
     end    
   end
-  
   db.close
 
   browser_hash.each do |key, value|
