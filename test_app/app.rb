@@ -74,41 +74,36 @@ post '/browser_graph' do
   wak = "<caption>単語数ランキング</caption><thead><tr><td></td>"
 
   browser_hash = Hash.new { |h,k| h[k] = {} }
-  str_ary = []
   str_all = []
   
   db = SQLite3::Database.new('test.db')
   db.results_as_hash = true
   db.execute('select * from test') do |row|
-    str_ary = row["text"].split(" ")
-    str_ary.each do |str|
-      unless str_all.include?(str) then
+    browser_name = row["browser"]
+    row["text"].split(" ").each do |str|
+      unless str_all.include?(str) then #全ての単語の情報を配列に入れる
         str_all.push(str)
       end
-      if browser_hash[row["browser"]].has_key?(str) then
-        browser_hash[row["browser"]][str] += 1
+      if browser_hash[browser_name].has_key?(str) then #各ブラウザの単語数をカウント
+        browser_hash[browser_name][str] += 1
       else
-        browser_hash[row["browser"]][str] = 1
+        browser_hash[browser_name][str] = 1
       end 
     end
   end
-
-  db.execute('select * from test') do |row|
+  db.close
+  
+  browser_hash.each do |key, value| #各ブラウザで単語の順番を揃える
     str_all.each do |str|
-      unless browser_hash[row["browser"]].has_key?(str) then
-        browser_hash[row["browser"]][str] = 0
+      unless browser_hash[key].has_key?(str) then
+        browser_hash[key][str] = 0
       end  
     end    
-  end
-  db.close
-
-  browser_hash.each do |key, value|
     browser_hash[key] = browser_hash[key].sort
   end
 
   def add_elements(wak, tag, close_tag, hash_sort, num)
     hash_sort.each do |value|
-
       wak += tag
       wak += value[num].to_s
       wak += close_tag
@@ -118,7 +113,7 @@ post '/browser_graph' do
 
   wak = add_elements(wak, "<th>", "</th>", browser_hash["chrome"], 0)
 
-  browser_hash.each do |key, value|
+  browser_hash.each do |key, value| #表の各行にブラウザ名と単語数を反映させる
     wak += "</tr></thead><tbody><tr><th>#{key}</th>\n"
     wak = add_elements(wak, "<td>", "</td>", browser_hash[key], 1)
   end
