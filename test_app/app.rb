@@ -73,10 +73,11 @@ end
 post '/browser_graph' do
 
   # Databaseとの接続インターフェース(ドライバ)を作成する
-  def get_driver(file)
+  def yield_driver(file)
     db = SQLite3::Database.new(file)
     db.results_as_hash = true
-    return db
+    yield(db)
+    db.close
   end
 
   # ブラウザごとに単語数を示すハッシュを作成する
@@ -137,12 +138,14 @@ post '/browser_graph' do
       end
     end
     wak += "</tr></tbody>\n";
-	return wak
+    return wak
   end
 
-  db = get_driver('test.db')
-  hash,arr = get_hash_array_for_browser(db)
-  db.close
+  hash = {}
+  arr  = []
+  yield_driver('test.db') { |db|
+    hash,arr = get_hash_array_for_browser(db)
+  }
   format_hash(hash,arr)
   return get_table_html(hash)
 
