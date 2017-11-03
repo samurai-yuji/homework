@@ -69,58 +69,84 @@ input_value = params[:foo]
     return @data
 end
 
-post '/browser_graph' do
 
-  wak = "<caption>単語数ランキング</caption><thead><tr><td></td>"
-
-  browser_hash = Hash.new { |h,k| h[k] = {} }
-  str_all = []
-  
-  db = SQLite3::Database.new('test.db')
+# Databaseとの接続インターフェース(ドライバ)を作成する
+def get_driver(file)
+  db = SQLite3::Database.new(file)
   db.results_as_hash = true
+  return db
+end
+
+# ブラウザごとに単語数を示すハッシュを作成する
+# 単語数0の単語も表示するための全単語の配列も作成する
+def get_hash_array_for_browser(db)
+  hash = Hash.new { |h,k| h[k] = {} } # key:ブラウザ名, value:単語数を示すハッシュ
+  arr  = [] # 全単語の配列
+
   db.execute('select * from test') do |row|
-    browser_name = row["browser"]
+    word_cnt = hash[row["browser"]]
     row["text"].split(" ").each do |str|
-      unless str_all.include?(str) then #全ての単語の情報を配列に入れる
-        str_all.push(str)
+      unless arr.include?(str) then
+        arr.push(str)
       end
-      if browser_hash[browser_name].has_key?(str) then #各ブラウザの単語数をカウント
-        browser_hash[browser_name][str] += 1
+      if word_cnt.has_key?(str) then
+        word_cnt[str] += 1
       else
-        browser_hash[browser_name][str] = 1
+        word_cnt[str] = 1
       end 
     end
   end
-  db.close
-  
-  browser_hash.each do |key, value| #各ブラウザで単語の順番を揃える
-    str_all.each do |str|
-      unless browser_hash[key].has_key?(str) then
-        browser_hash[key][str] = 0
+
+  return hash,arr
+end
+
+# 単語数0の単語を加える
+def format_hash(hash,arr)
+  hash.each do |key,_| #各ブラウザで単語の順番を揃える
+    arr.each do |str|
+      unless hash[key].has_key?(str) then
+        hash[key][str] = 0
       end  
     end    
-    browser_hash[key] = browser_hash[key].sort
   end
+end
 
-  def add_elements(wak, tag, close_tag, hash_sort, num)
-    hash_sort.each do |value|
+post '/browser_graph' do
+
+  def add_elements(wak, tag, close_tag, word_cnt, flag)
+    word_cnt.sort.each do |val|
       wak += tag
-      wak += value[num].to_s
+      case flag
+        when :word
+          wak += val[0].to_s
+        when :cnt
+          wak += val[1].to_s
+        else
+      end
       wak += close_tag
     end
     return wak
   end
 
-  wak = add_elements(wak, "<th>", "</th>", browser_hash["chrome"], 0)
-
-  browser_hash.each do |key, value| #表の各行にブラウザ名と単語数を反映させる
-    wak += "</tr></thead><tbody><tr><th>#{key}</th>\n"
-    wak = add_elements(wak, "<td>", "</td>", browser_hash[key], 1)
-  end
+  db = get_driver('test.db')
+  hash,arr = get_hash_array_for_browser(db)
+  db.close
+  format_hash(hash,arr)
   
+  wak = "" # ?
+  hash.each_with_index do |(key,val),idx| #表の各行にブラウザ名と単語数を反映させる
+    if idx == 0
+      wak += "<caption>単語数ランキング</caption><thead><tr><td></td>"
+      wak = add_elements(wak, "<th>", "</th>", val, :word)
+    else
+      wak += "</tr></thead><tbody><tr><th>#{key}</th>\n"
+      wak = add_elements(wak, "<td>", "</td>", val, :cnt)
+    end
+  end
   wak += "</tr></tbody>\n";
+
   return wak
-  #trの中を繰り返す
+  #trの中を繰り返す (?)
   
 end
 
